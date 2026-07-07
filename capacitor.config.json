@@ -1,0 +1,11 @@
+{
+  "appId": "com.smpuma.bunkercalculator",
+  "appName": "SM PUMA Bunker Calculator",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}
