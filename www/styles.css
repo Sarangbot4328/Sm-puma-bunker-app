@@ -115,6 +115,32 @@ select:focus {
   outline-offset: 1px;
 }
 
+.signed-input {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 58px;
+  gap: 8px;
+}
+
+.signed-input input {
+  min-width: 0;
+}
+
+.sign-toggle {
+  grid-column: auto;
+  width: 58px;
+  height: 46px;
+  padding: 0;
+  border: 1px solid #c5cfdd;
+  color: #245b7d;
+  background: #eef4f8;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.sign-toggle:active {
+  background: #dfeaf1;
+}
+
 select.mgo-selected {
   color: #1264c7;
   font-weight: 900;

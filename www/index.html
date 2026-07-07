@@ -42,12 +42,18 @@
 
             <label>
               트림 m
-              <input id="trim" name="trim_m" type="number" step="0.1" value="0" required />
+              <span class="signed-input">
+                <input id="trim" name="trim_m" type="text" inputmode="decimal" pattern="-?[0-9]*[.]?[0-9]*" value="0" required />
+                <button class="sign-toggle" type="button" data-target="trim">+/-</button>
+              </span>
             </label>
 
             <label>
               힐링 deg
-              <input id="heel" name="heel_deg" type="number" step="0.1" value="0" required />
+              <span class="signed-input">
+                <input id="heel" name="heel_deg" type="text" inputmode="decimal" pattern="-?[0-9]*[.]?[0-9]*" value="0" required />
+                <button class="sign-toggle" type="button" data-target="heel">+/-</button>
+              </span>
             </label>
 
             <label>

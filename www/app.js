@@ -389,7 +389,43 @@ function buildExcelXml(report) {
 </Workbook>`;
 }
 
-function exportCurrentTotalReport() {
+function downloadReportInBrowser(fileName, xml) {
+  const blob = new Blob([xml], { type: "application/vnd.ms-excel;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+async function shareReportInCapacitor(fileName, xml) {
+  const plugins = window.Capacitor?.Plugins;
+  const filesystem = plugins?.Filesystem;
+  const share = plugins?.Share;
+
+  if (!filesystem || !share) return false;
+
+  const writeResult = await filesystem.writeFile({
+    path: fileName,
+    data: xml,
+    directory: "CACHE",
+    encoding: "utf8"
+  });
+
+  await share.share({
+    title: APP_NAME,
+    text: "SM PUMA bunker total Excel report",
+    files: [writeResult.uri],
+    dialogTitle: "Excel report export"
+  });
+
+  return true;
+}
+
+async function exportCurrentTotalReport() {
   const status = document.querySelector("#exportStatus");
   if (!currentTotalReport) {
     if (status) status.textContent = "No total data.";
@@ -398,16 +434,16 @@ function exportCurrentTotalReport() {
 
   const stamp = new Date().toISOString().slice(0, 10);
   const xml = `\ufeff${buildExcelXml(currentTotalReport)}`;
-  const blob = new Blob([xml], { type: "application/vnd.ms-excel;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `SM_PUMA_Bunker_Total_${stamp}.xls`;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
-  if (status) status.textContent = "Saved.";
+  const fileName = `SM_PUMA_Bunker_Total_${stamp}.xls`;
+
+  if (status) status.textContent = "Preparing...";
+  try {
+    const shared = await shareReportInCapacitor(fileName, xml);
+    if (!shared) downloadReportInBrowser(fileName, xml);
+    if (status) status.textContent = shared ? "Share opened." : "Saved.";
+  } catch (error) {
+    if (status) status.textContent = `Failed: ${error.message}`;
+  }
 }
 
 form.addEventListener("submit", (event) => {
@@ -442,6 +478,16 @@ function handleFieldEdit(event) {
 
 form.addEventListener("input", handleFieldEdit);
 form.addEventListener("change", handleFieldEdit);
+
+document.querySelectorAll(".sign-toggle").forEach((button) => {
+  button.addEventListener("click", () => {
+    const input = document.querySelector(`#${button.dataset.target}`);
+    if (!input) return;
+    const value = Number(input.value || 0);
+    input.value = String(value === 0 ? 0 : -value);
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+});
 
 tankSelect.addEventListener("change", () => {
   updateRangeHelp();
